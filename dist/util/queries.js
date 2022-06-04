@@ -1,0 +1,15 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getUserByEmailAndPassword = exports.getUserByEmail = exports.updateUser = exports.insertUser = exports.getUserById = exports.getUsers = void 0;
+const getUsers = 'SELECT * FROM users';
+exports.getUsers = getUsers;
+const insertUser = 'INSERT INTO users(name, email, password) VALUES($1, $2, $3)';
+exports.insertUser = insertUser;
+const getUserById = 'SELECT * FROM users WHERE id = $1';
+exports.getUserById = getUserById;
+const getUserByEmail = 'SELECT * FROM users WHERE email = $1';
+exports.getUserByEmail = getUserByEmail;
+const getUserByEmailAndPassword = 'SELECT * FROM users WHERE email = $1 and password = $2';
+exports.getUserByEmailAndPassword = getUserByEmailAndPassword;
+const updateUser = 'UPDATE users SET name = $1, updatedat = to_timestamp($2) WHERE id = $3';
+exports.updateUser = updateUser;
