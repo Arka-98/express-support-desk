@@ -17,10 +17,6 @@ export const client = new Client({
     port: 5432
 })
 
-// client.connect()
-// .then(() => console.log('Connected to local DB'))
-// .catch((reason) => console.log(reason))
-
 export const getPoolClient = async () => {
     return pool.connect()
 }

@@ -6,6 +6,7 @@ import HttpException from "../util/exception";
 import Note from "../models/note-model";
 import TypedRequestBody from "../util/custom-request-interface";
 import Ticket from "../models/ticket-model";
+import sendEmail from "../util/aws-ses-lib/ses_sendEmail";
 
 const getNotesByTicketId = async (req: CustomRequest, res: Response, next: NextFunction) => {
     const ticketId = parseInt(req.params.ticketId)
@@ -36,6 +37,9 @@ const createNote = async (req: TypedRequestBody<{text: string}>, res: Response, 
         } else {
             ticket = await client.query<Ticket>(req.user?.is_staff ? queries.getTicketByIdAndStaffId : queries.getTicketByIdAndUserId, [ticket_id, req.user?.id])
             if(!ticket.rowCount) return next(new HttpException('User is not authorized to add notes to other tickets', 403))
+        }
+        if(req.user?.is_admin || req.user?.is_staff) {
+            const data = await sendEmail(ticket.rows[0].user_email, `Hi ${ticket.rows[0].user_name.split(' ')[0]},<br><br>You have a new reply on Ticket #${ticket.rows[0].id} from ${req.user.name} ${req.user.is_admin ? '(Support Desk Admin)' : '(Support Executive)'}`, `New reply on Ticket #${ticket.rows[0].id}`)
         }
         const query = {
             text: queries.insertNote,

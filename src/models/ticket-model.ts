@@ -18,6 +18,8 @@ interface Ticket {
     product: PRODUCT,
     description: string,
     status: STATUS,
+    user_email: string,
+    user_name: string,
     createdat: string,
     updatedat: string
 }

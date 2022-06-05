@@ -5,6 +5,7 @@ import Ticket, { PRODUCT, STATUS } from "../models/ticket-model";
 import HttpException from "../util/exception";
 import TypedRequestBody from "../util/custom-request-interface";
 import { CustomRequest } from "../middleware/auth";
+import sendEmail from "../util/aws-ses-lib/ses_sendEmail";
 
 const getTicketsByUserId = async (req: CustomRequest, res: Response, next: NextFunction) => {
     const client = req.client || await pool.connect()
@@ -70,7 +71,8 @@ const createTicket = async (req: TypedRequestBody<{product: string, description:
             text: queries.insertTicket,
             values: [req.user?.id, product, description, result.rows[0].staff_id]
         }
-        const response = await client.query(query)
+        const response = await client.query<{ id: number }>(query)
+        const data = await sendEmail(req.user!.email, `Hi ${req.user?.name.split(' ')[0]},<br><br>You have created a new ticket for your ${product}. Ticket ID for reference: ${response.rows[0].id}`, `New Ticket Created #${response.rows[0].id}`)
         res.status(201).json({ result: 'Created ticket successfully' })
     } catch (error: any) {
         return next(new HttpException(error.message, 500))
