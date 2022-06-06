@@ -20,7 +20,7 @@ const getNotesByUserIdAndTicketId = 'SELECT * FROM notes WHERE user_id = $1 AND 
 const insertNote = 'INSERT INTO notes (user_id, ticket_id, text) values ($1, $2, $3) RETURNING id'
 const countTickets = 'SELECT count(*) FROM tickets WHERE staff_id = $1 AND status = $2'
 const getTicketsByStaffId = 'SELECT * FROM tickets WHERE staff_id = $1 AND status = ANY($2::status_enum[]) ORDER BY createdat DESC'
-const getStaffIdWithLowestTickets = 'SELECT staff_id FROM tickets GROUP BY staff_id ORDER BY COUNT(staff_id) LIMIT 1'
+const getStaffIdWithLowestTickets = 'SELECT u.id FROM users u LEFT JOIN tickets t ON u.id = t.staff_id WHERE u.is_staff_approved = TRUE GROUP BY u.id ORDER BY count(t.id) ASC LIMIT 1'
 const getStaffPendingApproval = 'SELECT id, name, email, is_staff, is_admin, createdat FROM users WHERE is_staff = TRUE AND is_staff_approved = FALSE ORDER BY createdat DESC'
 const countStaffPendingApproval = 'SELECT COUNT(*) FROM users WHERE is_staff = TRUE AND is_staff_approved = FALSE'
 const changeApprovalStatus = 'UPDATE users SET is_staff_approved = $1 WHERE id = $2'
