@@ -8,7 +8,7 @@ const exception_1 = __importDefault(require("../util/exception"));
 const checkErrors = (req, res, next) => {
     const errors = (0, express_validator_1.validationResult)(req);
     if (!errors.isEmpty()) {
-        return next(new exception_1.default('Invalid input/wrong number of arguments passed', 400));
+        return next(new exception_1.default('Invalid input / Wrong arguments passed', 400, errors.array()));
     }
     next();
 };

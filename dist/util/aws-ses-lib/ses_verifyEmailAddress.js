@@ -12,29 +12,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getPoolClient = exports.client = void 0;
-const pg_1 = require("pg");
-const exception_1 = __importDefault(require("./exception"));
-const pool = new pg_1.Pool({
-    user: process.env.AWS_POSTGRES_USERNAME,
-    host: process.env.AWS_POSTGRES_HOST,
-    database: process.env.AWS_POSTGRES_DATABASE,
-    password: process.env.AWS_POSTGRES_PASSWORD,
-    port: parseInt(process.env.AWS_POSTGRES_HOST)
+const client_ses_1 = require("@aws-sdk/client-ses");
+const sesClient_1 = __importDefault(require("./sesClient"));
+const params = { EmailAddress: "arkadiptadas989@outlook.com" };
+const run = () => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const data = yield sesClient_1.default.send(new client_ses_1.VerifyEmailIdentityCommand(params));
+        console.log("Success.", data);
+        return data; // For unit tests.
+    }
+    catch (err) {
+        console.log("Error", err.stack);
+    }
 });
-exports.client = new pg_1.Client({
-    user: 'postgres',
-    host: 'localhost',
-    database: 'postgres',
-    password: 'Arka1998',
-    port: 5432
-});
-const getPoolClient = () => __awaiter(void 0, void 0, void 0, function* () {
-    return pool.connect();
-});
-exports.getPoolClient = getPoolClient;
-pool.on('error', (err, client) => {
-    if (err)
-        throw new exception_1.default(err.message, 500);
-});
-exports.default = pool;
+run();
