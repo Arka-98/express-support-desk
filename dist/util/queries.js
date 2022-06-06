@@ -45,7 +45,7 @@ const countTickets = 'SELECT count(*) FROM tickets WHERE staff_id = $1 AND statu
 exports.countTickets = countTickets;
 const getTicketsByStaffId = 'SELECT * FROM tickets WHERE staff_id = $1 AND status = ANY($2::status_enum[]) ORDER BY createdat DESC';
 exports.getTicketsByStaffId = getTicketsByStaffId;
-const getStaffIdWithLowestTickets = 'SELECT staff_id FROM tickets GROUP BY staff_id ORDER BY COUNT(staff_id) LIMIT 1';
+const getStaffIdWithLowestTickets = 'SELECT u.id AS staff_id FROM users u LEFT JOIN tickets t ON u.id = t.staff_id WHERE u.is_staff_approved = TRUE GROUP BY u.id ORDER BY count(t.id) ASC LIMIT 1';
 exports.getStaffIdWithLowestTickets = getStaffIdWithLowestTickets;
 const getStaffPendingApproval = 'SELECT id, name, email, is_staff, is_admin, createdat FROM users WHERE is_staff = TRUE AND is_staff_approved = FALSE ORDER BY createdat DESC';
 exports.getStaffPendingApproval = getStaffPendingApproval;
