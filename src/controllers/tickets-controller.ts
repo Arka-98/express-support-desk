@@ -6,6 +6,7 @@ import HttpException from "../util/exception";
 import TypedRequestBody from "../util/custom-request-interface";
 import { CustomRequest } from "../middleware/auth";
 import sendEmail from "../util/aws-ses-lib/ses_sendEmail";
+import { QueryResult } from "pg";
 
 const getTicketsByUserId = async (req: CustomRequest, res: Response, next: NextFunction) => {
     const client = req.client || await pool.connect()
@@ -94,7 +95,12 @@ const updateTicket = async (req: TypedRequestBody<{product: string, description:
     }
     const client = req.client || await pool.connect()
     try {
-        const ticket = await client.query<Ticket>(req.user?.is_staff ? queries.getTicketByIdAndStaffId : queries.getTicketByIdAndUserId, [id, req.user?.id])
+        let ticket: QueryResult<Ticket>
+        if(req.user?.is_admin) {
+            ticket = await client.query<Ticket>(queries.getTicketById, [id])
+        } else {
+            ticket = await client.query<Ticket>(req.user?.is_staff ? queries.getTicketByIdAndStaffId : queries.getTicketByIdAndUserId, [id, req.user?.id])
+        }
         if(!ticket.rows.length) {
             return next(new HttpException('Ticket not found for user', 404))
         }
