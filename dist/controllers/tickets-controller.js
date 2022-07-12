@@ -130,7 +130,7 @@ const createTicket = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
 });
 exports.createTicket = createTicket;
 const updateTicket = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _f, _g;
+    var _f, _g, _h;
     const id = parseInt(req.params.ticketId);
     if (!id) {
         return next(new exception_1.default('ID should be a number', 400));
@@ -145,7 +145,13 @@ const updateTicket = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
     }
     const client = req.client || (yield dbConn_1.default.connect());
     try {
-        const ticket = yield client.query(((_f = req.user) === null || _f === void 0 ? void 0 : _f.is_staff) ? queries.getTicketByIdAndStaffId : queries.getTicketByIdAndUserId, [id, (_g = req.user) === null || _g === void 0 ? void 0 : _g.id]);
+        let ticket;
+        if ((_f = req.user) === null || _f === void 0 ? void 0 : _f.is_admin) {
+            ticket = yield client.query(queries.getTicketById, [id]);
+        }
+        else {
+            ticket = yield client.query(((_g = req.user) === null || _g === void 0 ? void 0 : _g.is_staff) ? queries.getTicketByIdAndStaffId : queries.getTicketByIdAndUserId, [id, (_h = req.user) === null || _h === void 0 ? void 0 : _h.id]);
+        }
         if (!ticket.rows.length) {
             return next(new exception_1.default('Ticket not found for user', 404));
         }
@@ -165,8 +171,8 @@ const updateTicket = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
 });
 exports.updateTicket = updateTicket;
 const getTicketsWithUserAndStaffName = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _h;
-    if (!((_h = req.user) === null || _h === void 0 ? void 0 : _h.is_admin))
+    var _j;
+    if (!((_j = req.user) === null || _j === void 0 ? void 0 : _j.is_admin))
         return next(new exception_1.default('User is not authorized to access this resource', 403));
     const client = req.client || (yield dbConn_1.default.connect());
     try {
@@ -182,7 +188,7 @@ const getTicketsWithUserAndStaffName = (req, res, next) => __awaiter(void 0, voi
 });
 exports.getTicketsWithUserAndStaffName = getTicketsWithUserAndStaffName;
 const getTicketsByStaffId = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _j;
+    var _k;
     const { status } = req.query;
     if (!(status === null || status === void 0 ? void 0 : status.toString().trim()))
         return next(new exception_1.default('Query parameters are required', 400));
@@ -196,7 +202,7 @@ const getTicketsByStaffId = (req, res, next) => __awaiter(void 0, void 0, void 0
     try {
         const query = {
             text: queries.getTicketsByStaffId,
-            values: [(_j = req.user) === null || _j === void 0 ? void 0 : _j.id, statusArr]
+            values: [(_k = req.user) === null || _k === void 0 ? void 0 : _k.id, statusArr]
         };
         const tickets = yield client.query(query);
         res.status(200).json({ result: tickets.rows });
